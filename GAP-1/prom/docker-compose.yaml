@@ -1,0 +1,90 @@
+version: '3.3'
+
+volumes:
+    prometheus_data: {}
+
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.config.file=/etc/prometheus/web-config.yml' 
+      - '--web.external-url=https://prom.boyanchuk.com/'
+      - '--web.route-prefix=/'
+    network_mode: host
+    restart: always
+
+  alertmanager:
+    image: prom/alertmanager
+    ports:
+      - "127.0.0.1:9093:9093"
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+    restart: always
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+
+  node_exporter:
+    image: prom/node-exporter
+    container_name: node_exporter
+    command:
+      - '--web.config.file=/etc/node-exporter/web-config.yml' 
+      - '--path.rootfs=/host'
+    ports:
+      - "127.0.0.1:9100:9100"
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - /:/host:ro,rslave
+      - ./config/:/etc/node-exporter/
+
+  blackbox_exporter:
+    image: prom/blackbox-exporter
+    container_name: bb_exporter
+    dns: 8.8.8.8
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9115:9115"
+    volumes:
+      - ./config:/config
+    command: '--config.file=/config/blackbox.yml'
+
+  docker_exporter:
+    image: prometheusnet/docker_exporter
+    container_name: docker_exporter
+    ports:
+      - "127.0.0.1:9417:9417"
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  nginx_exporter:
+    image: nginx/nginx-prometheus-exporter:0.10.0
+    container_name: nginx_exporter
+    restart: unless-stopped
+    dns: 8.8.8.8
+    ports:
+      - "127.0.0.1:9113:9113"
+    command: '-nginx.scrape-uri=https://boyanchuk.com/nginx_status -nginx.ssl-verify=false'
+    
+  cadvisor: 
+    image: gcr.io/cadvisor/cadvisor:latest 
+    container_name: cadvisor 
+    ports:
+      - "127.0.0.1:8080:8080"
+    restart: always 
+    volumes: 
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
