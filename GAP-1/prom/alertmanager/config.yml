@@ -1,10 +1,23 @@
 route:
-    receiver: 'telegram'
+  receiver: 'telegram'
+  routes:
+    - match:
+        severity: warning
+      receiver: 'telegram'
+    - match:
+        severity: critical
+      receiver: 'telegram-critical'
 
 receivers:
     - name: 'telegram'
       telegram_configs:
-      - bot_token: '<TOKEN>'
+      - bot_token: '6429155856:AAHJL6-clqvlZuyul7JRfg-F7ahdSbVEZl0'
         api_url: 'https://api.telegram.org'
         chat_id: -4005890411
+        parse_mode: 'HTML'
+    - name: 'telegram-critical'
+      telegram_configs:
+      - bot_token: '6429155856:AAHJL6-clqvlZuyul7JRfg-F7ahdSbVEZl0'
+        api_url: 'https://api.telegram.org'
+        chat_id: -4080234406
         parse_mode: 'HTML'
