@@ -3,6 +3,10 @@ global:
   evaluation_interval: 300s
   external_labels:
       monitor: 'otus'
+      site: 'prod'
+
+remote_write:
+  - url: http://localhost:8428/api/v1/write
 
 rule_files:
   - 'alert.rules'
@@ -49,6 +53,10 @@ scrape_configs:
     static_configs:
          - targets:
            - localhost:9113
+  - job_name: 'victoriametrics'
+    static_configs:
+         - targets:
+           - localhost:8428
   - job_name: 'cadvisor'
     static_configs:
          - targets:
