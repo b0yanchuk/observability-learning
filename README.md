@@ -6,9 +6,9 @@
 5) Для node_exporter и prometheus выпущены ssl сертификаты (self-signed для localhost в node_exporter и let's encrypt для prometheus) и включены tls и аутентификация.
 6) Все экспортеры опубликованы в рамках локалхоста для доступа к ним prometheus, prometheus опубликован в интернет и дополнительно проксируется через nginx.
 
-##second homework
+## second homework
 Добавлен инстанс victoriametrics с параметром retentionPeriod=14d
 В prometheus настроен remote_write
 
-##third homework
+## third homework
 настроены алерты с разными severity и для каждого свой receiver в alertmanager
